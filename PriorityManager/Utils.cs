@@ -72,7 +72,13 @@ namespace PriorityManager
             List<Process> pList = new List<Process>();
             foreach (Process p in Process.GetProcesses())
             {
-                if (p.MainWindowHandle != IntPtr.Zero)
+                if (Settings.config.GuiProcessesOnly)
+                {
+                    if (p.MainWindowHandle != IntPtr.Zero)
+                    {
+                        pList.Add(p);
+                    }
+                } else
                 {
                     pList.Add(p);
                 }
@@ -81,9 +87,22 @@ namespace PriorityManager
             return pList.ToArray();
         }
 
+        public bool IsProcessRunning(string pName, out Process[] oProcesses)
+        {
+            Process[] proc = Process.GetProcessesByName(pName);
+            if (proc.Length > 0)
+            {
+                oProcesses = proc;
+                return true;
+            }
+
+            oProcesses = null;
+            return false;
+        }
+
         public bool IsPriotized(Process pProcess)
         {
-            if (pProcess.BasePriority == Priority)
+            if (pProcess.PriorityClass == Settings.config.PriorityClass)
             {
                 return true;
             }
@@ -104,6 +123,15 @@ namespace PriorityManager
 
             Settings.config.Processes.RemoveAll(pn => pn == name);
             Settings.SaveConfig();
+
+            Process[] pList;
+            if (IsProcessRunning(name, out pList))
+            {
+                foreach (Process p in pList)
+                {
+                    p.PriorityClass = ProcessPriorityClass.Normal;
+                }
+            }
 
             item.Parent.MenuItems.Remove(item);
         }

@@ -17,23 +17,31 @@ namespace PriorityManager
         private MenuItem programList;
         private MenuItem savedList;
 
-        private Utils utils = new Utils();
+        private Utils utils;
         private Task updateTask;
 
         public PriorityManager()
         {
+            Settings.LoadConfig();
+
+            utils = new Utils();
+
             programList = new MenuItem("Programs");
             savedList = new MenuItem("Saved");
 
+            // Init Tray Menu
             trayMenu = new ContextMenu(new MenuItem[]
                 {
                     programList,
                     savedList,
                     new MenuItem("-"),
                     new MenuItem("Refresh", UpdateClick),
+                    new MenuItem("About", AboutClick),
+                    new MenuItem("-"),
                     new MenuItem("Exit", ExitClick)
                 }); ;
 
+            // Init Tray Icon
             trayIcon = new NotifyIcon()
             {
                 Icon = Resources.icon,
@@ -41,7 +49,6 @@ namespace PriorityManager
                 Visible = true
             };
 
-            Settings.LoadConfig();
             UpdateList();
 
             updateTask = Task.Run(async () =>
@@ -63,6 +70,11 @@ namespace PriorityManager
         public void UpdateClick(object sender, EventArgs e)
         {
             UpdateList();
+        }
+
+        public void AboutClick(object sender, EventArgs e)
+        {
+            MessageBox.Show("PriorityManager by LiNCHx\nIcon made by Freepik from www.flaticon.com", "About");
         }
 
         public void UpdateList()

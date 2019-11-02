@@ -31,6 +31,7 @@ namespace PriorityManager
             {
                 StreamWriter sw = File.CreateText(configPath);
                 JsonSerializer js = new JsonSerializer();
+                js.Formatting = Formatting.Indented;
                 js.Serialize(sw, config);
                 sw.Close();
             } else { InitConfig(); }
@@ -39,7 +40,8 @@ namespace PriorityManager
         public static void InitConfig()
         {
             config = new ConfigFile();
-            config.Priority = 13;
+            config.PriorityClass = System.Diagnostics.ProcessPriorityClass.High;
+            config.GuiProcessesOnly = true;
             config.Processes = new List<string>();
 
             Console.WriteLine(configPath);
